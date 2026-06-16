@@ -1,19 +1,24 @@
 const express = require("express");
-const cors = require("cors");
+const pool = require("./config/database");
+
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
-app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "API funcionando"
-  });
+app.use("/auth", authRoutes);
+
+app.get("/", async (req, res) => {
+
+  const result = await pool.query(
+    "SELECT NOW()"
+  );
+
+  res.json(result.rows);
+
 });
 
-const PORT = 3000;
-
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+app.listen(3000, () => {
+  console.log("Servidor rodando na porta 3000");
 });

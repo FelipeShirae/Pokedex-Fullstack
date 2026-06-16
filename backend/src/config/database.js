@@ -1,5 +1,12 @@
-const sqlite3 = require("sqlite3").verbose();
+const { Pool } = require("pg");
 
-const db = new sqlite3.Database("./database.sqlite");
+const pool = new Pool({
+  user: "postgres",
+  host: "localhost",
+  database: "pokedex_fullstack",
+  password: "1111",
+  port: 5432,
+  max: 10
+});
 
-module.exports = db;
+module.exports = pool;
