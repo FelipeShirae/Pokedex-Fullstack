@@ -2,12 +2,14 @@ const express = require("express");
 const pool = require("./config/database");
 
 const authRoutes = require("./routes/authRoutes");
+const pokemonRoutes = require("./routes/pokemonRoutes");
 
 const app = express();
 
 app.use(express.json());
 
 app.use("/auth", authRoutes);
+app.use("/pokemons", pokemonRoutes);
 
 app.get("/", async (req, res) => {
 

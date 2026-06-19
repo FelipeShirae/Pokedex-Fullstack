@@ -24,15 +24,21 @@ router.post("/login", async (req, res) => {
   console.log("Hash banco:", user.password);
   console.log("Resultado bcrypt:", senhaValida);
 
-  if (!senhaValida) {
-    return res.status(401).json({
-      message: "Senha inválida"
-    });
-  }
+  const token = jwt.sign(
+    {
+      id: user.id,
+      username: user.username
+    },
+      "segredo123",
+    {
+      expiresIn: "1h"
+    }
+  );
 
-  res.json({
-    message: "Login OK"
-  });
+res.json({
+  message: "Login OK",
+  token
+});
 
 });
 
