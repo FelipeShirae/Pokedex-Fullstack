@@ -4,18 +4,117 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.get(
-  "/",
-  authMiddleware,
-  async (req, res) => {
 
-    const result = await pool.query(
-      "SELECT * FROM pokemons"
-    );
+// LISTAR TODOS
+router.get("/", authMiddleware, async (req, res) => {
 
-    res.json(result.rows);
+  const result = await pool.query(
+    "SELECT * FROM pokemons ORDER BY id"
+  );
 
+  res.json(result.rows);
+
+});
+
+
+// BUSCAR POR ID
+router.get("/:id", authMiddleware, async (req, res) => {
+
+  const { id } = req.params;
+
+  const result = await pool.query(
+    "SELECT * FROM pokemons WHERE id = $1",
+    [id]
+  );
+
+  if (result.rows.length === 0) {
+    return res.status(404).json({
+      message: "Pokémon não encontrado"
+    });
   }
-);
+
+  res.json(result.rows[0]);
+
+});
+
+
+// CADASTRAR
+router.post("/", authMiddleware, async (req, res) => {
+
+  const {
+    nome,
+    tipo,
+    altura,
+    peso
+  } = req.body;
+
+  const result = await pool.query(
+    `INSERT INTO pokemons
+    (nome, tipo, altura, peso)
+    VALUES ($1,$2,$3,$4)
+    RETURNING *`,
+    [nome, tipo, altura, peso]
+  );
+
+  res.status(201).json(result.rows[0]);
+
+});
+
+
+// ATUALIZAR
+router.put("/:id", authMiddleware, async (req, res) => {
+
+  const { id } = req.params;
+
+  const {
+    nome,
+    tipo,
+    altura,
+    peso
+  } = req.body;
+
+  const result = await pool.query(
+    `UPDATE pokemons
+     SET nome = $1,
+         tipo = $2,
+         altura = $3,
+         peso = $4
+     WHERE id = $5
+     RETURNING *`,
+    [nome, tipo, altura, peso, id]
+  );
+
+  if (result.rows.length === 0) {
+    return res.status(404).json({
+      message: "Pokémon não encontrado"
+    });
+  }
+
+  res.json(result.rows[0]);
+
+});
+
+
+// DELETAR
+router.delete("/:id", authMiddleware, async (req, res) => {
+
+  const { id } = req.params;
+
+  const result = await pool.query(
+    "DELETE FROM pokemons WHERE id = $1 RETURNING *",
+    [id]
+  );
+
+  if (result.rows.length === 0) {
+    return res.status(404).json({
+      message: "Pokémon não encontrado"
+    });
+  }
+
+  res.json({
+    message: "Pokémon removido com sucesso"
+  });
+
+});
 
 module.exports = router;
