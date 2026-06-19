@@ -10,35 +10,55 @@ router.post("/login", async (req, res) => {
 
   const { username, password } = req.body;
 
+  // validação dos campos
+  if (!username || !password) {
+    return res.status(400).json({
+      message: "Usuário e senha são obrigatórios"
+    });
+  }
+
   const user = await User.findByUsername(username);
 
-  console.log("Usuário encontrado:");
-  console.log(user);
+  // usuário não existe
+  if (!user) {
+    console.log("Tentativa de login com usuário inexistente:", username);
+
+    return res.status(401).json({
+      message: "Usuário ou senha inválidos"
+    });
+  }
 
   const senhaValida = await bcrypt.compare(
     password,
     user.password
   );
 
-  console.log("Senha digitada:", password);
-  console.log("Hash banco:", user.password);
-  console.log("Resultado bcrypt:", senhaValida);
+  // senha incorreta
+  if (!senhaValida) {
+    console.log("Senha inválida para usuário:", username);
+
+    return res.status(401).json({
+      message: "Usuário ou senha inválidos"
+    });
+  }
 
   const token = jwt.sign(
     {
       id: user.id,
       username: user.username
     },
-      "segredo123",
+    "segredo123",
     {
       expiresIn: "1h"
     }
   );
 
-res.json({
-  message: "Login OK",
-  token
-});
+  console.log("Login realizado:", username);
+
+  res.json({
+    message: "Login OK",
+    token
+  });
 
 });
 
