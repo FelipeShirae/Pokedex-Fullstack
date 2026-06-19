@@ -32,6 +32,8 @@ function PokemonList({ pokemons, onExcluir }) {
         onChange={(e) => setBusca(e.target.value)}
       />
 
+      <br /><br />
+
       {filtrados.length === 0 ? (
 
         <p>Nenhum Pokémon encontrado.</p>
@@ -45,13 +47,29 @@ function PokemonList({ pokemons, onExcluir }) {
             key={pokemon.id}
           >
 
+            {pokemon.imagem && (
+
+              <img
+                src={pokemon.imagem}
+                alt={pokemon.nome}
+                width="120"
+              />
+
+            )}
+
             <h3>{pokemon.nome}</h3>
 
-            <p><strong>Tipo:</strong> {pokemon.tipo}</p>
+            <p>
+              <strong>Tipo:</strong> {pokemon.tipo}
+            </p>
 
-            <p><strong>Altura:</strong> {pokemon.altura}</p>
+            <p>
+              <strong>Altura:</strong> {pokemon.altura}
+            </p>
 
-            <p><strong>Peso:</strong> {pokemon.peso}</p>
+            <p>
+              <strong>Peso:</strong> {pokemon.peso}
+            </p>
 
             <button
               onClick={() => excluir(pokemon.id, pokemon.nome)}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import pokeApi from "../services/pokeApi";
 
 function PokemonForm({ onCadastrar }) {
 
@@ -6,11 +7,45 @@ function PokemonForm({ onCadastrar }) {
   const [tipo, setTipo] = useState("");
   const [altura, setAltura] = useState("");
   const [peso, setPeso] = useState("");
+  const [imagem, setImagem] = useState("");
+
+  async function buscarPokemon() {
+
+    if (!nome) {
+      alert("Digite o nome do Pokémon.");
+      return;
+    }
+
+    try {
+
+      const response = await pokeApi.get(
+        `/pokemon/${nome.toLowerCase()}`
+      );
+
+      const pokemon = response.data;
+
+      setNome(pokemon.name);
+      setTipo(
+        pokemon.types
+          .map((t) => t.type.name)
+          .join(", ")
+      );
+      setAltura(pokemon.height);
+      setPeso(pokemon.weight);
+      setImagem(pokemon.sprites.front_default);
+
+    } catch {
+
+      alert("Pokémon não encontrado.");
+
+    }
+
+  }
 
   function cadastrar() {
 
     if (!nome || !tipo || !altura || !peso) {
-      alert("Preencha todos os campos.");
+      alert("Busque um Pokémon antes de cadastrar.");
       return;
     }
 
@@ -18,13 +53,15 @@ function PokemonForm({ onCadastrar }) {
       nome,
       tipo,
       altura,
-      peso
+      peso,
+      imagem
     });
 
     setNome("");
     setTipo("");
     setAltura("");
     setPeso("");
+    setImagem("");
 
   }
 
@@ -35,28 +72,48 @@ function PokemonForm({ onCadastrar }) {
       <h2>Novo Pokémon</h2>
 
       <input
-        placeholder="Nome"
+        placeholder="Digite o nome (Ex: pikachu)"
         value={nome}
         onChange={(e) => setNome(e.target.value)}
       />
 
+      <br /><br />
+
+      <button onClick={buscarPokemon}>
+        Buscar na PokéAPI
+      </button>
+
+      <br /><br />
+
+      {imagem && (
+        <img
+          src={imagem}
+          alt={nome}
+          width="120"
+        />
+      )}
+
+      <br />
+
       <input
         placeholder="Tipo"
         value={tipo}
-        onChange={(e) => setTipo(e.target.value)}
+        readOnly
       />
 
       <input
         placeholder="Altura"
         value={altura}
-        onChange={(e) => setAltura(e.target.value)}
+        readOnly
       />
 
       <input
         placeholder="Peso"
         value={peso}
-        onChange={(e) => setPeso(e.target.value)}
+        readOnly
       />
+
+      <br /><br />
 
       <button onClick={cadastrar}>
         Cadastrar Pokémon
